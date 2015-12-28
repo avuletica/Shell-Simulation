@@ -13,12 +13,40 @@ void current_working_directory()
 	else
 		perror("getcwd() error");
 }
+void change_directory(char *buffer)
+{
+	char delimiter[] = " ";
+	char *command, *path;
+	int inputLength;
+	char *inputCopy;
+
+	/* Copy buffer for parsing */
+	inputLength = strlen(buffer);
+	inputCopy = (char*) calloc(inputLength + 1, sizeof(char));
+	strncpy(inputCopy, buffer, inputLength);
+	/* Get first word (command) and path */
+	command = strtok (inputCopy, delimiter);
+	path = strtok (NULL, delimiter);
+
+	if (strcmp(buffer,"cd ..") == 0)
+		chdir("../");
+	else if (strcmp(buffer,"cd") == 0)
+		chdir(getenv("HOME"));
+	else
+		chdir(path);
+
+	if(inputCopy)
+		free(inputCopy);
+}
 
 int main(int argc, char **argv)
 {
 	char command[100]={'\0'};	
 	struct passwd *p;
 	char hostname[1024] = {'\0'};
+	char *buffer = NULL;
+    int read;
+    size_t len;
 
 	printf("----- C O N S O L E\t S I M U L A T I O N -----\n\n");
 	while (1) {	
@@ -27,14 +55,24 @@ int main(int argc, char **argv)
 		gethostname(hostname, 1023);
 		printf("[%s@%s]# ",p->pw_name,hostname);
 		
-		/* Get user input */		
-		scanf(" %s",command);
+		/* Get user input, strtok to remove newline */		
+		read = getline(&buffer, &len, stdin);
+		strtok(buffer, "\n");
+		/* Isolate command */
+		strcpy(command,buffer);
+		strtok(command," ");
+	
 		if (strcmp(command,"cwd") == 0) 
 			current_working_directory();		
-		else if(strcmp(command,"quit") == 0)
+		else if(strcmp(command,"cd") == 0)
+			change_directory(buffer);
+		else if(strcmp(command,"q") == 0)
 			return 0;
 		else
 			printf("%s: command not found\n",command);
 	}
+	if(read)
+    	free(buffer);
+
 	return 0;
 }
