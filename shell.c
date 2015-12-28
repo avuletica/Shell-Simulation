@@ -4,6 +4,7 @@
 #include <string.h>
 #include <wait.h>
 #include <pwd.h>
+#include <dirent.h> 
 
 void current_working_directory()
 {
@@ -30,7 +31,7 @@ void change_directory(char *buffer)
 
 	if (strcmp(buffer,"cd ..") == 0)
 		chdir("../");
-	else if (strcmp(buffer,"cd") == 0)
+	else if (strcmp(buffer,"cd") == 0 || strcmp(buffer,"cd ~") == 0)
 		chdir(getenv("HOME"));
 	else
 		chdir(path);
@@ -39,12 +40,27 @@ void change_directory(char *buffer)
 		free(inputCopy);
 }
 
+void list_directory()
+{
+	DIR  *d;
+	struct dirent *dir;
+
+	d = opendir(".");
+	if (d)
+	{
+		while ((dir = readdir(d)) != NULL)		
+			printf("%s\n", dir->d_name);
+		
+	closedir(d);
+	}
+}
+
 int main(int argc, char **argv)
 {
-	char command[100]={'\0'};	
-	struct passwd *p;
-	char hostname[1024] = {'\0'};
+	char command[100]={'\0'};
+	char hostname[100] = {'\0'};	
 	char *buffer = NULL;
+	struct passwd *p;	
     int read;
     size_t len;
 
@@ -52,7 +68,7 @@ int main(int argc, char **argv)
 	while (1) {	
 		/* Get & display username and hostname */
 		passwd *p = getpwuid(getuid());
-		gethostname(hostname, 1023);
+		gethostname(hostname, 99);
 		printf("[%s@%s]# ",p->pw_name,hostname);
 		
 		/* Get user input, strtok to remove newline */		
@@ -66,6 +82,8 @@ int main(int argc, char **argv)
 			current_working_directory();		
 		else if(strcmp(command,"cd") == 0)
 			change_directory(buffer);
+		else if(strcmp(command,"ls") == 0)
+			list_directory();
 		else if(strcmp(command,"q") == 0)
 			return 0;
 		else
