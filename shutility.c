@@ -15,7 +15,23 @@ void display_info()
 
 void redirection_input(char *word1, char *word2)
 {
+	int input;
+	int chk;
+	char c='0';
 
+	input = open(word2, O_RDONLY, S_IRUSR | S_IWUSR);
+	if (-1 == input) {
+		perror("Opening file error!");
+		return;
+	}		
+	if (-1 == dup2(input, fileno(stdin)))
+		perror("Cannot redirect stdin!");
+
+	while ((chk=read(STDIN_FILENO, &c, 1)) > 0)
+		write(STDOUT_FILENO, &c, 1);
+
+	puts("\n");
+	close(input);
 }
 
 void redirection_output(char *word1, char *word2)

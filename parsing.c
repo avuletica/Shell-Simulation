@@ -14,8 +14,10 @@ int parsing(char *buffer)
 	const char ch1[2] = ">";
 	const char ch2[2] = "<";
 	int save_out;
+	int save_inpt;
 
 	save_out = dup(fileno(stdout));
+	save_inpt = dup(fileno(stdin));
 
 	/* Check for redirection (>) */
 	ret = strchr(buffer,'>');
@@ -60,9 +62,11 @@ int parsing(char *buffer)
 	else
 		printf("%s: command not found\n",command);
 
-	/* Reset stdin */
+	/* Reset stdin/stdout */
 	dup2(save_out, fileno(stdout));
+	dup2(save_inpt, fileno(stdin));
 	close(save_out);
+	close(save_inpt);
 
 	return 1;
 }
