@@ -21,13 +21,13 @@ void redirection_input(char *word1, char *word2)
 void redirection_output(char *word1, char *word2)
 {
 	int out;
-	
-	out = open(word2, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
-    if (-1 == out)
-    	perror("Opening file error!");  
-    if (-1 == dup2(out, fileno(stdout)))
-    	perror("Cannot redirect stdout!");   
 
-    fflush(stdout);
-    close(out);
+	out = open(word2, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+	if (-1 == out)
+		perror("Opening file error!");
+	if (-1 == dup2(out, fileno(stdout)))
+		perror("Cannot redirect stdout!");
+
+	fflush(stdout);
+	close(out);
 }

@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 		strtok(buffer, "\n");		
 		status = parsing(buffer);
 	}
-	if(read)
+	if (read)
 		free(buffer);
 
 	return 0;

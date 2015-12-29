@@ -62,7 +62,7 @@ int parsing(char *buffer)
 
 	/* Reset stdin */
 	dup2(save_out, fileno(stdout));
-    close(save_out);
+	close(save_out);
 
 	return 1;
 }
