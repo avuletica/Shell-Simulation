@@ -17,10 +17,9 @@ void current_working_directory()
 void change_directory(char *buffer)
 {
 	char delimiter[] = " ";
-	
 	char *path;
-	int inputLength;
 	char *inputCopy;
+	int inputLength;	
 
 	/* Copy buffer for parsing */
 	inputLength = strlen(buffer);
@@ -37,7 +36,7 @@ void change_directory(char *buffer)
 	else
 		chdir(path);
 
-	if(inputCopy)
+	if (inputCopy)
 		free(inputCopy);
 }
 
@@ -47,8 +46,7 @@ void list_directory()
 	struct dirent *dir;
 
 	d = opendir(".");
-	if (d)
-	{
+	if (d) {
 		while ((dir = readdir(d)) != NULL)		
 			printf("%s\n", dir->d_name);
 		

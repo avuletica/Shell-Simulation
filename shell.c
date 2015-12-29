@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <wait.h>
 #include <pwd.h>
-#include <dirent.h> 
 #include "dirutils.h"
 
 void display_info()
@@ -20,9 +18,9 @@ void display_info()
 int main(int argc, char **argv)
 {
 	char command[100]={'\0'};		
-	char *buffer = NULL;	
-    int read;
-    size_t len;
+	char *buffer = NULL;
+	int read;
+	size_t len;
 
 	printf("----- C O N S O L E\t S I M U L A T I O N -----\n\n");
 	while (1) {	
@@ -47,7 +45,7 @@ int main(int argc, char **argv)
 			printf("%s: command not found\n",command);
 	}
 	if(read)
-    	free(buffer);
+		free(buffer);
 
 	return 0;
 }
