@@ -98,3 +98,16 @@ int handle_command(char *command,char *buffer)
 	}
 	return 0;
 }
+
+void remove_spaces(char* source)
+{
+  char* i = source;
+  char* j = source;
+
+	while (*j != 0) {
+		*i = *j++;
+		if(*i != ' ')
+			i++;
+	}
+	*i = 0;	
+}

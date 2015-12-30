@@ -21,7 +21,6 @@ int parsing(char *buffer)
 	/* Save stdout/stdin for restoring purposes */
 	save_out = dup(fileno(stdout));
 	save_inpt = dup(fileno(stdin));
-
 	/* Check for redirection (>) */
 	ret = strchr(buffer,'>');
 	if(ret) {
@@ -33,9 +32,9 @@ int parsing(char *buffer)
 		strcpy(word1,token);
 		token = strtok(NULL, ch1);
 		strcpy(word2,token);
+		remove_spaces(word2);
 		redirection_output(word1,word2);		
 	}
-
 	/* Check for redirection (<) */
 	ret = strchr(buffer, '<');
 	if(ret) {
@@ -47,27 +46,22 @@ int parsing(char *buffer)
 		strcpy(word1,token);
 		token = strtok(NULL, ch2);
 		strcpy(word2,token);
+		remove_spaces(word2);
 		redirection_input(word1,word2);
 	}
-
 	/* Isolate command */
 	strcpy(command,buffer);
 	strtok(command," ");
-
 	/* Base case */
 	if (strcmp(command,"q") == 0)
 		return 0;
-
 	/* Handle command */
 	handle_command(command,buffer);
-
 	/* Restore stdin/stdout */
 	dup2(save_out, fileno(stdout));
 	dup2(save_inpt, fileno(stdin));
 	close(save_out);
-	close(save_inpt);
-		
+	close(save_inpt);		
 
-	return 1;
-	
+	return 1;	
 }
