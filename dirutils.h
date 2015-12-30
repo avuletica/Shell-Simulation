@@ -2,9 +2,7 @@
 #define DIRUTILS_H
 
 void current_working_directory();
-void change_directory(char *buffer);
+void change_directory(char *);
 void list_directory();
 
 #endif
-
-

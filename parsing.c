@@ -4,18 +4,21 @@
 #include "dirutils.h"
 #include "shutility.h"
 
+#define max_len 20
+
 int parsing(char *buffer)
 {
-	char command[20]={'\0'};
+	char command[max_len]={'\0'};
 	char *ret;
 	char *token;
-	char word1[20]={'\0'};
-	char word2[20]={'\0'};
+	char word1[max_len]={'\0'};
+	char word2[max_len]={'\0'};
 	const char ch1[2] = ">";
 	const char ch2[2] = "<";
 	int save_out;
 	int save_inpt;
 
+	/* Save stdout/stdin for restoring purposes */
 	save_out = dup(fileno(stdout));
 	save_inpt = dup(fileno(stdin));
 
@@ -62,7 +65,7 @@ int parsing(char *buffer)
 	else
 		printf("%s: command not found\n",command);
 
-	/* Reset stdin/stdout */
+	/* Restore stdin/stdout */
 	dup2(save_out, fileno(stdout));
 	dup2(save_inpt, fileno(stdin));
 	close(save_out);

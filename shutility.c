@@ -2,15 +2,32 @@
 #include <pwd.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
+
+#define max_hname 128
+#define max_path 256
+#define max_cwd 256
 
 void display_info()
 {
-	char hostname[100] = {'\0'};
 	struct passwd *p;
-	
+	char hostname[max_hname] = {'\0'};
+	char cwd[max_cwd]={'\0'};
+	char *token;
+	const char delimiter[2] = "/";	
+
+	getcwd(cwd, sizeof(cwd));
+	/* get the first token */
+	token = strtok(cwd, delimiter);
+	/* walk through other tokens */
+	while ( token != NULL ) {
+		token = strtok(NULL, delimiter);
+		if (token != NULL)
+			strcpy(cwd,token);
+	}
 	p = getpwuid(getuid());
-	gethostname(hostname, 99);
-	printf("[%s@%s]# ",p->pw_name,hostname);
+	gethostname(hostname, max_hname);
+	printf("[%s@%s %s]# ",p->pw_name,hostname,cwd);
 }
 
 void redirection_input(char *word1, char *word2)

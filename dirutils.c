@@ -5,9 +5,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define max_cwd 256
+
 void current_working_directory()
 {
-	char cwd[512]={'\0'};
+	char cwd[max_cwd]={'\0'};
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
 		fprintf(stdout, "Current working dir: %s\n", cwd);
 	else
