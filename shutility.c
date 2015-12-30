@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <wait.h>
+#include "dirutils.h"
 
 #define max_hname 128
 #define max_path 256
@@ -63,4 +65,36 @@ void redirection_output(char *word1, char *word2)
 
 	fflush(stdout);
 	close(out);
+}
+
+int handle_command(char *command,char *buffer)
+{
+	int cpid;
+	int wstatus;	
+
+	cpid=fork();
+	if(cpid == 0) {
+		if (strcmp(command,"cwd") == 0) 
+			current_working_directory();		
+		else if (strcmp(command,"cd") == 0)
+			change_directory(buffer);
+		else {
+			execlp(command, command,NULL);
+			perror("Error");
+		}	
+	}
+	else {
+		cpid=waitpid(0, &wstatus, 0);
+		/* Maybe in future 
+		if (WIFEXITED(wstatus)) {
+			printf("Exit status of CHILD process: %d\n", WEXITSTATUS(wstatus));
+			fflush(stdout);
+		}
+		else if (WIFSIGNALED(wstatus)) {
+			fprintf(stderr, "CHILD process interupted with signal: %d\n", WTERMSIG(wstatus));
+			fflush(stderr);
+		}
+		*/
+	}
+	return 0;
 }

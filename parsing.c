@@ -54,22 +54,20 @@ int parsing(char *buffer)
 	strcpy(command,buffer);
 	strtok(command," ");
 
-	if (strcmp(command,"cwd") == 0) 
-		current_working_directory();		
-	else if(strcmp(command,"cd") == 0)
-		change_directory(buffer);
-	else if(strcmp(command,"ls") == 0)
-		list_directory();
-	else if(strcmp(command,"q") == 0)
+	/* Base case */
+	if (strcmp(command,"q") == 0)
 		return 0;
-	else
-		printf("%s: command not found\n",command);
+
+	/* Handle command */
+	handle_command(command,buffer);
 
 	/* Restore stdin/stdout */
 	dup2(save_out, fileno(stdout));
 	dup2(save_inpt, fileno(stdin));
 	close(save_out);
 	close(save_inpt);
+		
 
 	return 1;
+	
 }

@@ -4,5 +4,6 @@
 void display_info();
 void redirection_input(char *, char *);
 void redirection_output(char *, char *);
+int handle_command(char*, char*);
 
 #endif
