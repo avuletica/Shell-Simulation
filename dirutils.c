@@ -41,7 +41,7 @@ void change_directory(char *buffer)
     if (inputCopy)
         free(inputCopy);
 }
-
+/*
 void list_directory()
 {
     DIR  *d;
@@ -55,3 +55,4 @@ void list_directory()
         closedir(d);
     }
 }
+*/
