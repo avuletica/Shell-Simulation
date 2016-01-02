@@ -9,6 +9,8 @@
 #define max_hname 128
 #define max_path 256
 #define max_cwd 256
+#define READ_END 0
+#define WRITE_END 1
 
 void display_info()
 {
@@ -97,6 +99,63 @@ int execute_command(char *command,char *buffer)
         */
     }
     return 0;
+}
+
+void handle_pipe(char *word1, char *word2)
+{
+    int pipefd[2];
+    int pid1, pid2;
+    int status;
+
+    /* Create Pipe */
+    if (pipe(pipefd) == -1) {
+        perror("pipe");
+        _exit(0);
+    }
+    
+    /* First fork */
+    pid1 = fork();
+    if (pid1 == -1) {
+        perror("fork");
+        _exit(0);
+    }
+    /* CHILD 1 */
+    if (pid1 == 0) {               
+        if (dup2(pipefd[WRITE_END], STDOUT_FILENO) == -1) {
+            perror("dup2");
+            _exit(0);
+        }
+        close(pipefd[READ_END]);            /* Don't need pipe READ_END */
+        if (pipefd[WRITE_END] != STDOUT_FILENO)
+            close(pipefd[WRITE_END]);    
+        execlp(word1, word1, NULL);
+    }    
+    close(pipefd[WRITE_END]);
+
+    /* Second fork */
+    pid2 = fork();
+    if (pid2 == -1) {
+        perror("fork");
+        kill(pid1, SIGTERM);
+        _exit(0);
+    }
+    /* CHILD 2 */
+    if (pid2 == 0) {           
+        if (dup2(pipefd[READ_END], STDIN_FILENO) == -1) {
+            perror("dup2");
+            /* Kill first process */
+            kill(pid1, SIGTERM);
+            _exit(0);
+        }
+        if (pipefd[READ_END] != STDIN_FILENO)
+            close(pipefd[READ_END]);        
+        execlp(word2, word2, NULL);
+    }    
+    close (pipefd[READ_END]); 
+
+    /* Wait for childs */
+    waitpid(pid1, NULL, 0);
+    waitpid(pid2, &status, 0);
 }
 
 void remove_spaces(char* source)

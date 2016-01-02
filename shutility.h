@@ -6,5 +6,6 @@ void remove_spaces(char *);
 void redirection_input(char *, char *);
 void redirection_output(char *, char *);
 int execute_command(char*, char*);
+void handle_pipe(char*, char*);
 
 #endif
