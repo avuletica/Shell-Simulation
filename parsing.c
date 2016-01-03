@@ -4,12 +4,14 @@
 #include <signal.h>
 #include "dirutils.h"
 #include "shutility.h"
+#include "parsing.h"
 
 #define max_len 20
 
 int parsing(char *buffer)
 {
     char command[max_len]={'\0'};
+    char arguments[max_len]={'\0'};
     char *ret;
     char *token;
     char word1[max_len]={'\0'};
@@ -17,6 +19,7 @@ int parsing(char *buffer)
     const char ch1[2] = ">";
     const char ch2[2] = "<";
     const char ch3[2] = "|";
+    const char ch4[2] = " ";
     int save_out;
     int save_inpt;
 
@@ -70,20 +73,26 @@ int parsing(char *buffer)
     /* Isolate command */
     strcpy(command, buffer);
     strtok(command, " ");
-
+    
+    /* Isolate arguments */    
+    token = strtok(buffer, ch4);
+    token = strtok(NULL, ch4);
+    if(token)
+        strcpy(arguments, token);
+    
     /*
-    * Handle custom commands,
+    * handle_ custom commands,
     * using kill to end all child processes @ exit,
     * else execute shell(bash) builtin commands.
     */
     if (strcmp(command,"q") == 0)
         kill(0, SIGINT);
     else if (strcmp(command, "cd") == 0)
-            change_directory(buffer);
+        change_directory(buffer);
     else if (strcmp(command, "cwd") == 0) 
-            current_working_directory();
+        current_working_directory();
     else if(!ret)
-        execute_command(command,buffer);   
+        execute_command(command, arguments);   
     
     /* Restore stdin/stdout */
     dup2(save_out, fileno(stdout));
@@ -92,4 +101,17 @@ int parsing(char *buffer)
     close(save_inpt);       
 
     return 1;   
+}
+
+void remove_spaces(char* source)
+{
+  char* i = source;
+  char* j = source;
+
+    while (*j != 0) {
+        *i = *j++;
+        if(*i != ' ')
+            i++;
+    }
+    *i = 0; 
 }

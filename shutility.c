@@ -69,17 +69,21 @@ void redirection_output(char *word1, char *word2)
     close(out);
 }
 
-int execute_command(char *command,char *buffer)
+int execute_command(char *command,char *arguments)
 {
     int cpid;
     int wstatus;
     int cstatus;    
-
+        
     cpid=fork();
     if(cpid == 0) {
-        cstatus = execlp(command, command,NULL);
-        if(cstatus && !strchr(command,'&'))
-            printf("%s: command not found\n",command);          
+        if (strcmp(command, "kill") == 0)
+            execlp(command, command, arguments, NULL);
+        else {
+            cstatus = execlp(command, command,NULL);
+            if (cstatus && !strchr(command,'&'))
+                printf("%s: command not found\n",command);
+        }                   
                 
         /* Keep running if it's background process */
         if(!strchr(command,'&'))
@@ -158,15 +162,3 @@ void handle_pipe(char *word1, char *word2)
     waitpid(pid2, &status, 0);
 }
 
-void remove_spaces(char* source)
-{
-  char* i = source;
-  char* j = source;
-
-    while (*j != 0) {
-        *i = *j++;
-        if(*i != ' ')
-            i++;
-    }
-    *i = 0; 
-}
