@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <signal.h>
-#include "dirutils.h"
 #include "shutility.h"
 #include "parsing.h"
+#include "hcommand.h"
 
 #define max_len 20
 
@@ -80,19 +79,8 @@ int parsing(char *buffer)
     if(token)
         strcpy(arguments, token);
     
-    /*
-    * handle_ custom commands,
-    * using kill to end all child processes @ exit,
-    * else execute shell(bash) builtin commands.
-    */
-    if (strcmp(command,"q") == 0)
-        kill(0, SIGINT);
-    else if (strcmp(command, "cd") == 0)
-        change_directory(buffer);
-    else if (strcmp(command, "cwd") == 0) 
-        current_working_directory();
-    else if(!ret)
-        execute_command(command, arguments);   
+    /* Handle commands... */
+    handle_command(command, arguments, ret);  
     
     /* Restore stdin/stdout */
     dup2(save_out, fileno(stdout));

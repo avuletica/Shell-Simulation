@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <string.h>
 #include <wait.h>
-#include "dirutils.h"
 
 #define max_hname 128
 #define max_path 256
@@ -31,7 +30,7 @@ void display_info()
     }
     p = getpwuid(getuid());
     gethostname(hostname, max_hname);
-    printf("[%s@%s %s]# ",p->pw_name,hostname,cwd);
+    printf("[%s@%s %s]# ",p->pw_name, hostname, cwd);
 }
 
 void redirection_input(char *word1, char *word2)
@@ -67,42 +66,6 @@ void redirection_output(char *word1, char *word2)
 
     fflush(stdout);
     close(out);
-}
-
-int execute_command(char *command,char *arguments)
-{
-    int cpid;
-    int wstatus;
-    int cstatus;    
-        
-    cpid=fork();
-    if(cpid == 0) {
-        if (strcmp(command, "kill") == 0)
-            execlp(command, command, arguments, NULL);
-        else {
-            cstatus = execlp(command, command,NULL);
-            if (cstatus && !strchr(command,'&'))
-                printf("%s: command not found\n",command);
-        }                   
-                
-        /* Keep running if it's background process */
-        if(!strchr(command,'&'))
-            _exit(0);       
-    }
-    else {
-        cpid=waitpid(0, &wstatus, 0);
-        /* Maybe in future 
-        if (WIFEXITED(wstatus)) {
-            printf("Exit status of CHILD process: %d\n", WEXITSTATUS(wstatus));
-            fflush(stdout);
-        }
-        else if (WIFSIGNALED(wstatus)) {
-            fprintf(stderr, "CHILD process interupted with signal: %d\n", WTERMSIG(wstatus));
-            fflush(stderr);
-        }
-        */
-    }
-    return 0;
 }
 
 void handle_pipe(char *word1, char *word2)
