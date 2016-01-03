@@ -11,35 +11,35 @@ void current_working_directory()
 {
 	char cwd[max_cwd] = {'\0'};
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
-	fprintf(stdout, "Current working dir: %s\n", cwd);
+		fprintf(stdout, "Current working dir: %s\n", cwd);
 	else
-	perror("getcwd() error");
+		perror("getcwd() error");
 }
 
 void change_directory(char *buffer)
 {
 	char delimiter[] = " ";
 	char *path;
-	char *inputCopy;
-	int inputLength;    
+	char *inptcpy;
+	int inptlen;    
 
 	/* Copy buffer for parsing */
-	inputLength = strlen(buffer);
-	inputCopy = (char*) calloc(inputLength + 1, sizeof(char));
-	strncpy(inputCopy, buffer, inputLength);
+	inptlen = strlen(buffer);
+	inptcpy = (char*) calloc(inptlen + 1, sizeof(char));
+	strncpy(inptcpy, buffer, inptlen);
 	/* Get second word (path) */
-	strtok (inputCopy, delimiter);
+	strtok (inptcpy, delimiter);
 	path = strtok (NULL, delimiter);
 
 	if (strcmp(buffer,"cd ..") == 0)
-	chdir("..");
+		chdir("../");
 	else if (strcmp(buffer,"cd") == 0 || strcmp(buffer,"cd ~") == 0)
-	chdir(getenv("HOME"));
+		chdir(getenv("HOME"));
 	else
-	chdir(path);
+		chdir(path);
 
-	if (inputCopy)
-	free(inputCopy);
+	if (inptcpy)
+		free(inptcpy);
 }
 /*
 void list_directory()

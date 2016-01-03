@@ -6,7 +6,7 @@
 #include "dirutils.h"
 #include "shutility.h"
 
-void handle_command(char *command, char *arguments, char *ret)
+void handle_command(char *command, char *arguments, char *buffer, char *ret)
 {
 	/*
 	* handle_ custom commands,
@@ -16,7 +16,7 @@ void handle_command(char *command, char *arguments, char *ret)
 	if (strcmp(command,"q") == 0 || strcmp(command,"quit") == 0)
 		kill(0, SIGINT);
 	else if (strcmp(command, "cd") == 0)
-		change_directory(arguments);
+		change_directory(buffer);
 	else if (strcmp(command, "cwd") == 0) 
 		current_working_directory();
 	else if (!ret)
@@ -47,14 +47,14 @@ int execute_command(char *command,char *arguments)
 		cpid=waitpid(0, &wstatus, 0);
 		/*
 		* Handle exit status of process prototype
-		if (WIFEXITED(wstatus)) {
-			printf("Exit status of CHILD process: %d\n", WEXITSTATUS(wstatus));
-			fflush(stdout);
-		}
-		else if (WIFSIGNALED(wstatus)) {
-			fprintf(stderr, "CHILD process interupted with signal: %d\n", WTERMSIG(wstatus));
-			fflush(stderr);
-		}
+		*if (WIFEXITED(wstatus)) {
+		*	printf("Exit status of CHILD process: %d\n", WEXITSTATUS(wstatus));
+		*	fflush(stdout);
+		*}
+		*else if (WIFSIGNALED(wstatus)) {
+		*	fprintf(stderr, "CHILD process interupted with signal: %d\n", WTERMSIG(wstatus));
+		*	fflush(stderr);
+		*}
 		*/
 	}
 	return 0;

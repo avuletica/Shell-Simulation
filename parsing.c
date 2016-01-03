@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "shutility.h"
@@ -13,6 +14,7 @@ int parsing(char *buffer)
 	char arguments[max_len] = {'\0'};
 	char *ret;
 	char *token;
+	char *inptcpy;
 	char word1[max_len] = {'\0'};
 	char word2[max_len] = {'\0'};
 	const char ch1[2] = ">";
@@ -21,6 +23,12 @@ int parsing(char *buffer)
 	const char ch4[2] = " ";
 	int save_out;
 	int save_inpt;
+	int inptlen;    
+
+	/* Copy buffer for parsing */
+	inptlen = strlen(buffer);
+	inptcpy = (char*) calloc(inptlen + 1, sizeof(char));
+	strncpy(inptcpy, buffer, inptlen);
 
 	/* Save stdout/stdin for restoring purposes */
 	save_out = dup(fileno(stdout));
@@ -73,20 +81,23 @@ int parsing(char *buffer)
 	strcpy(command, buffer);
 	strtok(command, " ");
 	
-	/* Isolate arguments */    
-	token = strtok(buffer, ch4);
+	/* Isolate arguments */   
+	token = strtok(inptcpy, ch4);
 	token = strtok(NULL, ch4);
 	if (token)
 		strcpy(arguments, token);
-	
+ 
 	/* Handle commands... */
-	handle_command(command, arguments, ret);  
+	handle_command(command, arguments, buffer, ret);  
 	
 	/* Restore stdin/stdout */
 	dup2(save_out, fileno(stdout));
 	dup2(save_inpt, fileno(stdin));
 	close(save_out);
-	close(save_inpt);       
+	close(save_inpt);
+
+	if (inptcpy)
+		free(inptcpy);       
 
 	return 1;   
 }
