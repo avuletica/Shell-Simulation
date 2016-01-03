@@ -13,7 +13,7 @@ void handle_command(char *command, char *arguments, char *ret)
 	* using kill to end all child processes @ exit,
 	* else execute shell(bash) builtin commands.
 	*/
-	if (strcmp(command,"q") == 0)
+	if (strcmp(command,"q") == 0 || strcmp(command,"quit") == 0)
 		kill(0, SIGINT);
 	else if (strcmp(command, "cd") == 0)
 		change_directory(arguments);
