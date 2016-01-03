@@ -7,8 +7,8 @@ default: shell
 
 all: $(TARGETS)
 
-shell: shell.o dirutils.o parsing.o shutility.o
-	$(CC) $(CFLAGS) shell.o dirutils.o parsing.o shutility.o -o shell
+shell: shell.o dirutils.o parsing.o shutility.o hcommand.o
+	$(CC) $(CFLAGS) shell.o dirutils.o parsing.o shutility.o hcommand.o -o shell
 
 clean:
 	rm -f *.o *~ a.out $(TARGETS)
