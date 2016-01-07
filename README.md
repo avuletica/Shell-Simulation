@@ -3,8 +3,9 @@
 Simple simulation of shell using C language and *nix system  calls.
 
 # How to use
-Open terminal at local repository and execute make <br>
-Run executable with: ./shell 
+Open terminal at local repository and run make, <br>
+or make all if you want to test redirection of input <br>
+Run program with: ./shell 
 
 # This simulation can: 
 Execute builtin shell(bash) commands, example: 
@@ -20,7 +21,8 @@ Use of pipe (|), example:
 > `ls | sort`
 
 Use of redirection (>) & (<) to a file, example:
->`ls > output.txt`
+>`ls > filename` <br>
+>`./test < filename`
 
 Kill process with terminate signal, example:
 > `kill <pid>` 
