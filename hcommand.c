@@ -26,15 +26,22 @@ void handle_command(char *command, char *arguments, char *buffer, char *ret)
 int execute_command(char *command,char *arguments)
 {
 	int cpid;
-	int wstatus;
+	int rtrnstatus;
 	int cstatus;    
-		
+	
+	printf("%s\n",arguments);
 	cpid=fork();
 	if(cpid == 0) {
 		if (strcmp(command, "kill") == 0)
 			execlp(command, command, arguments, NULL);
+		else if (strcmp(command, "rm") == 0)
+			unlink(arguments);
 		else {
-			cstatus = execlp(command, command,NULL);
+			/* If we have arguments, execute with arguments... */
+			if (strcmp(arguments, "\0") != 0)
+				cstatus = execlp(command, command, arguments, NULL);
+			else
+				cstatus = execlp(command, command, NULL);
 			if (cstatus && !strchr(command,'&'))
 				printf("%s: command not found\n",command);
 		}                   
@@ -44,17 +51,12 @@ int execute_command(char *command,char *arguments)
 			_exit(0);       
 	}
 	else {
-		cpid=waitpid(0, &wstatus, 0);
+		waitpid(cpid, &rtrnstatus, 0);
 		/*
-		* Handle exit status of process prototype
-		*if (WIFEXITED(wstatus)) {
-		*	printf("Exit status of CHILD process: %d\n", WEXITSTATUS(wstatus));
-		*	fflush(stdout);
-		*}
-		*else if (WIFSIGNALED(wstatus)) {
-		*	fprintf(stderr, "CHILD process interupted with signal: %d\n", WTERMSIG(wstatus));
-		*	fflush(stderr);
-		*}
+		if (WIFEXITED(rtrnstatus))
+			printf("Child's exit code %d\n", WEXITSTATUS(rtrnstatus));
+		else
+			printf("Child did not terminate with exit\n");
 		*/
 	}
 	return 0;
