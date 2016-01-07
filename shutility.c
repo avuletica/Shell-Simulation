@@ -24,9 +24,9 @@ void display_info()
 	token = strtok(cwd, delimiter);
 	/* walk through other tokens */
 	while ( token != NULL ) {
-		token = strtok(NULL, delimiter);
-		if (token != NULL)
-			strcpy(cwd,token);
+	   token = strtok(NULL, delimiter);
+	   if (token != NULL)
+		   strcpy(cwd,token);
 	}
 	p = getpwuid(getuid());
 	gethostname(hostname, max_hname);
@@ -35,37 +35,72 @@ void display_info()
 
 void redirection_input(char *word1, char *word2)
 {
-	int input;
-	int chk;
-	char c='0';
+	pid_t cpid;
+	int rtrnstatus;
 
-	input = open(word2, O_RDONLY, S_IRUSR | S_IWUSR);
-	if (-1 == input) {
-		perror("Opening file error!");
+	cpid = fork();
+
+	if (cpid < 0) {
+		perror("fork failed");
 		return;
-	}       
-	if (-1 == dup2(input, fileno(stdin)))
-		perror("Cannot redirect stdin!");
+	}
+	else if (cpid == 0) {
+		execlp(word1, word1, word2, NULL);
+	}
+	else {
+		/* Wait for child process to finish */
+		waitpid(cpid, &rtrnstatus, 0);
 
-	while ((chk=read(STDIN_FILENO, &c, 1)) > 0)
-		write(STDOUT_FILENO, &c, 1);
-
-	puts("\n");
-	close(input);
+		if (WIFEXITED(rtrnstatus))
+			printf("Child's exit code %d\n", WEXITSTATUS(rtrnstatus));
+		else
+			printf("Child did not terminate with exit\n"); 
+	}
 }
 
 void redirection_output(char *word1, char *word2)
-{
-	int out;
+{    
+	pid_t cpid;
+	int rtrnstatus;
+	int outpt;
+	int save_out;
 
-	out = open(word2, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
-	if (-1 == out)
-		perror("Opening file error!");
-	if (-1 == dup2(out, fileno(stdout)))
-		perror("Cannot redirect stdout!");
+	outpt = open(word2, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+	if (-1 == outpt) {
+		perror(word2);
+		return;
+	}
 
-	fflush(stdout);
-	close(out);
+	/* Save standard output */
+	save_out = dup(fileno(stdout));
+   
+	if (-1 == dup2(outpt, fileno(stdout))) {
+		perror("Cannot redirect stdout");
+		return;
+	}   
+
+	cpid=fork();
+
+	if (cpid < 0 ) {
+		perror("Fork failed");
+		return;
+	}           
+	else if (cpid == 0) 
+		execlp(word1, word1, NULL);             
+	else {
+		/* Wait for child process to finish */
+		waitpid(cpid, &rtrnstatus, 0);
+
+		/* Restore standard output */
+		dup2(save_out, fileno(stdout));
+		close(save_out);
+		close(outpt);
+
+		if (WIFEXITED(rtrnstatus))
+			printf("Child's exit code %d\n", WEXITSTATUS(rtrnstatus));
+		else
+			printf("Child did not terminate with exit\n");          
+	}   
 }
 
 void handle_pipe(char *word1, char *word2)
@@ -76,47 +111,47 @@ void handle_pipe(char *word1, char *word2)
 
 	/* Create Pipe */
 	if (pipe(pipefd) == -1) {
-		perror("pipe");
-		_exit(0);
+	   perror("pipe");
+	   _exit(0);
 	}
 	
 	/* First fork */
 	pid1 = fork();
 	if (pid1 == -1) {
-		perror("fork");
-		_exit(0);
+	   perror("fork");
+	   _exit(0);
 	}
 	/* CHILD 1 */
 	if (pid1 == 0) {               
-		if (dup2(pipefd[WRITE_END], STDOUT_FILENO) == -1) {
-			perror("dup2");
-			_exit(0);
-		}
-		close(pipefd[READ_END]);            /* Don't need pipe READ_END */
-		if (pipefd[WRITE_END] != STDOUT_FILENO)
-			close(pipefd[WRITE_END]);    
-		execlp(word1, word1, NULL);
+	   if (dup2(pipefd[WRITE_END], STDOUT_FILENO) == -1) {
+		   perror("dup2");
+		   _exit(0);
+	   }
+	   close(pipefd[READ_END]);            /* Don't need pipe READ_END */
+	   if (pipefd[WRITE_END] != STDOUT_FILENO)
+		   close(pipefd[WRITE_END]);    
+	   execlp(word1, word1, NULL);
 	}    
 	close(pipefd[WRITE_END]);
 
 	/* Second fork */
 	pid2 = fork();
 	if (pid2 == -1) {
-		perror("fork");
-		kill(pid1, SIGTERM);
-		_exit(0);
+	   perror("fork");
+	   kill(pid1, SIGTERM);
+	   _exit(0);
 	}
 	/* CHILD 2 */
 	if (pid2 == 0) {           
-		if (dup2(pipefd[READ_END], STDIN_FILENO) == -1) {
-			perror("dup2");
-			/* Kill first process */
-			kill(pid1, SIGTERM);
-			_exit(0);
-		}
-		if (pipefd[READ_END] != STDIN_FILENO)
-			close(pipefd[READ_END]);        
-		execlp(word2, word2, NULL);
+	   if (dup2(pipefd[READ_END], STDIN_FILENO) == -1) {
+		   perror("dup2");
+		   /* Kill first process */
+		   kill(pid1, SIGTERM);
+		   _exit(0);
+	   }
+	   if (pipefd[READ_END] != STDIN_FILENO)
+		   close(pipefd[READ_END]);        
+	   execlp(word2, word2, NULL);
 	}    
 	close (pipefd[READ_END]); 
 

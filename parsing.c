@@ -20,19 +20,14 @@ int parsing(char *buffer)
 	const char ch1[2] = ">";
 	const char ch2[2] = "<";
 	const char ch3[2] = "|";
-	const char ch4[2] = " ";
-	int save_out;
-	int save_inpt;
-	int inptlen;    
+	const char ch4[2] = " ";	
+	int inptlen;
+	int check=1;    
 
 	/* Copy buffer for parsing */
 	inptlen = strlen(buffer);
 	inptcpy = (char*) calloc(inptlen + 1, sizeof(char));
-	strncpy(inptcpy, buffer, inptlen);
-
-	/* Save stdout/stdin for restoring purposes */
-	save_out = dup(fileno(stdout));
-	save_inpt = dup(fileno(stdin));
+	strncpy(inptcpy, buffer, inptlen);	
 
 	/* Check for redirection (>) */
 	ret = strchr(buffer, '>');
@@ -45,8 +40,10 @@ int parsing(char *buffer)
 		strcpy(word1, token);
 		token = strtok(NULL, ch1);
 		strcpy(word2, token);
+		remove_spaces(word1);
 		remove_spaces(word2);
-		redirection_output(word1, word2);        
+		redirection_output(word1, word2);
+		check = 0;        
 	}
 
 	/* Check for redirection (<) */
@@ -60,8 +57,10 @@ int parsing(char *buffer)
 		strcpy(word1, token);
 		token = strtok(NULL, ch2);
 		strcpy(word2, token);
+		remove_spaces(word1);
 		remove_spaces(word2);
 		redirection_input(word1, word2);
+		check = 0;
 	}
 
 	/* Check for pipe (|) */
@@ -74,7 +73,8 @@ int parsing(char *buffer)
 		puts("Pipe detected, handling...");
 		remove_spaces(word1);
 		remove_spaces(word2);
-		handle_pipe(word1, word2);       
+		handle_pipe(word1, word2); 
+		check = 0;      
 	}        
 
 	/* Isolate command */
@@ -87,14 +87,11 @@ int parsing(char *buffer)
 	if (token)
 		strcpy(arguments, token);
  
-	/* Handle commands... */
-	handle_command(command, arguments, buffer, ret);  
+	/* If there is no redirection or pipe, handle command. */
+	if (check)
+		handle_command(command, arguments, buffer, ret);  
 	
-	/* Restore stdin/stdout */
-	dup2(save_out, fileno(stdout));
-	dup2(save_inpt, fileno(stdin));
-	close(save_out);
-	close(save_inpt);
+	check = 1;
 
 	if (inptcpy)
 		free(inptcpy);       
