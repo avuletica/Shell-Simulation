@@ -29,7 +29,6 @@ int execute_command(char *command,char *arguments)
 	int rtrnstatus;
 	int cstatus;    
 	
-	printf("%s\n",arguments);
 	cpid=fork();
 	if(cpid == 0) {
 		if (strcmp(command, "kill") == 0)
