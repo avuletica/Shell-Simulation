@@ -12,7 +12,7 @@ shell: shell.o dirutils.o parsing.o shutility.o hcommand.o
 	$(CCO) $(CFLAGS) shell.o dirutils.o parsing.o shutility.o hcommand.o -o shell
 
 shell.o: shell.c parsing.c parsing.h shutility.c shutility.h
-	$(CC1) $(CFLAGS) main.c
+	$(CC1) $(CFLAGS) shell.c
 
 dirutils.o: dirutils.c dirutils.h
 	$(CC1) $(CFLAGS) dirutils.c
