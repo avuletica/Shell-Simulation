@@ -58,7 +58,7 @@ void redirection_input(char *word1, char *word2)
         }
 }
 
-void redirection_output(char *word1, char *word2)
+void redirection_output(char *word1, char *argument, char *word2)
 {    
         pid_t cpid;
         int rtrnstatus;
@@ -85,8 +85,13 @@ void redirection_output(char *word1, char *word2)
                 perror("Fork failed");
                 return;
         }           
-        else if (cpid == 0) 
-                execlp(word1, word1, NULL);             
+        else if (cpid == 0) {
+        	if (strcmp(argument, "\0") == 0)
+        		execlp(word1, word1, NULL);
+        	else
+        		execlp(word1, word1, argument, NULL);
+        } 
+                          
         else {
                 /* Wait for child process to finish */
                 waitpid(cpid, &rtrnstatus, 0);
@@ -157,7 +162,7 @@ void handle_pipe(char *word1, char *pipearg1, char *word2, char *pipearg2)
 		}
 		if (pipefd[READ_END] != STDIN_FILENO)
 		   close(pipefd[READ_END]); 
-		          
+
 		/* Execute depending on argument */
 		if(strcmp(pipearg2, "\0") == 0)
 			execlp(word2, word2, NULL);

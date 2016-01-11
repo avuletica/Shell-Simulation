@@ -18,11 +18,7 @@ int parsing(char *buffer)
 	char *token;
 	char *inptcpy;
 	char word1[max_len] = {'\0'};
-	char word2[max_len] = {'\0'};
-	const char ch1[2] = ">";
-	const char ch2[2] = "<";
-	const char ch3[2] = "|";
-	const char ch4[2] = " ";	
+	char word2[max_len] = {'\0'};		
 	int inptlen;
 	int check=1;    
 
@@ -34,17 +30,31 @@ int parsing(char *buffer)
 	/* Check for redirection (>) */
 	ret = strchr(buffer, '>');
 	if (ret) {
-		/* 
-		* Get the first token, copy it to word1,
-		* get the second token, copy it to word2.
-		*/
-		token = strtok(buffer, ch1);
+		//* word1 = left of pipe, word2 = right of pipe */
+		token = strtok(buffer, ">");
 		strcpy(word1, token);
-		token = strtok(NULL, ch1);
-		strcpy(word2, token);
+	   	/* walk through other tokens */
+	   	while( token != NULL ) {   
+	      		token = strtok(NULL, ">");
+	      		if(token)
+				strcpy(word2, token);
+	      	}		
+
+		/* word1 = first command
+		*  argument = first argument
+		*/
+		token = strtok(word1, " ");
+		token = strtok(NULL, " ");
+		if(token)
+			strcpy(argument, token);
+
 		remove_spaces(word1);
 		remove_spaces(word2);
-		redirection_output(word1, word2);
+		if(strcmp(argument, " ") != 0)
+			remove_spaces(argument);
+
+		printf("%s %s %s\n",word1, argument, word2);
+		redirection_output(word1, argument, word2);
 		check = 0;        
 	}
 
@@ -55,9 +65,9 @@ int parsing(char *buffer)
 		* Get the first token, copy it to word1,
 		* get the second token, copy it to word2.
 		*/
-		token = strtok(buffer, ch2);
+		token = strtok(buffer, "<");
 		strcpy(word1, token);
-		token = strtok(NULL, ch2);
+		token = strtok(NULL, "<");
 		strcpy(word2, token);
 		remove_spaces(word1);
 		remove_spaces(word2);
@@ -69,7 +79,7 @@ int parsing(char *buffer)
 	ret = strchr(buffer, '|');
 	if (ret) {
 		/* word1 = left of pipe, word2 = right of pipe */
-		token = strtok(buffer, ch3);
+		token = strtok(buffer, "|");
 		strcpy(word1, token);
 	   	/* walk through other tokens */
 	   	while( token != NULL ) {   
@@ -112,8 +122,8 @@ int parsing(char *buffer)
 	strtok(command, " ");
 	
 	/* Isolate argument */   
-	token = strtok(inptcpy, ch4);
-	token = strtok(NULL, ch4);
+	token = strtok(inptcpy, " ");
+	token = strtok(NULL, " ");
 	if (token)
 		strcpy(argument, token);
  
