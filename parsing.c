@@ -11,7 +11,9 @@
 int parsing(char *buffer)
 {
 	char command[max_len] = {'\0'};
-	char arguments[max_len] = {'\0'};
+	char argument[max_len] = {'\0'};
+	char pipearg1[max_len] = {'\0'};
+	char pipearg2[max_len] = {'\0'};
 	char *ret;
 	char *token;
 	char *inptcpy;
@@ -66,14 +68,42 @@ int parsing(char *buffer)
 	/* Check for pipe (|) */
 	ret = strchr(buffer, '|');
 	if (ret) {
+		/* word1 = left of pipe, word2 = right of pipe */
 		token = strtok(buffer, ch3);
 		strcpy(word1, token);
-		token = strtok(NULL, ch3);
-		strcpy(word2, token);
-		puts("Pipe detected, handling...");
+	   	/* walk through other tokens */
+	   	while( token != NULL ) {   
+	      		token = strtok(NULL, "|");
+	      		if(token)
+				strcpy(word2, token);
+	      	}
+				
+		/* word1 = first command
+		*  pipearg1 = first argument
+		*/
+		token = strtok(word1, " ");
+		token = strtok(NULL, " ");
+		if(token)
+			strcpy(pipearg1, token);
+
+		/* word2 = second command
+		*  pipearg2 = second argument
+		*/
+		token = strtok(word2, " ");
+		token = strtok(NULL, " ");
+		if(token)
+			strcpy(pipearg2, token);
+		
+		/* Remove spaces to handle edge cases */
 		remove_spaces(word1);
+		if(strcmp(pipearg1, " ") != 0)
+			remove_spaces(pipearg1);
+		
 		remove_spaces(word2);
-		handle_pipe(word1, word2); 
+		if(strcmp(pipearg2, " ") != 0)
+			remove_spaces(pipearg2);
+
+		handle_pipe(word1, pipearg1, word2, pipearg2);
 		check = 0;      
 	}        
 
@@ -81,15 +111,15 @@ int parsing(char *buffer)
 	strcpy(command, buffer);
 	strtok(command, " ");
 	
-	/* Isolate arguments */   
+	/* Isolate argument */   
 	token = strtok(inptcpy, ch4);
 	token = strtok(NULL, ch4);
 	if (token)
-		strcpy(arguments, token);
+		strcpy(argument, token);
  
 	/* If there is no redirection or pipe, handle command. */
 	if (check)
-		handle_command(command, arguments, buffer, ret);  
+		handle_command(command, argument, buffer, ret);  
 	
 	check = 1;
 
