@@ -13,12 +13,12 @@ int parsing(char *buffer)
 	char command[max_len] = {'\0'};
 	char argument[max_len] = {'\0'};
 	char pipearg1[max_len] = {'\0'};
-	char pipearg2[max_len] = {'\0'};
+	char pipearg2[max_len] = {'\0'};	
+	char word1[max_len] = {'\0'};
+	char word2[max_len] = {'\0'};
 	char *ret;
 	char *token;
-	char *inptcpy;
-	char word1[max_len] = {'\0'};
-	char word2[max_len] = {'\0'};		
+	char *inptcpy;		
 	int inptlen;
 	int check=1;    
 
@@ -30,7 +30,7 @@ int parsing(char *buffer)
 	/* Check for redirection (>) */
 	ret = strchr(buffer, '>');
 	if (ret) {
-		//* word1 = left of pipe, word2 = right of pipe */
+		/* word1 = left of pipe, word2 = right of pipe */
 		token = strtok(buffer, ">");
 		strcpy(word1, token);
 	   	/* walk through other tokens */
